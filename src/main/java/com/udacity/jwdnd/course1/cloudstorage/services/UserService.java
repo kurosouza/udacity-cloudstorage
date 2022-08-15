@@ -1,3 +1,4 @@
+
 package com.udacity.jwdnd.course1.cloudstorage.services;
 
 import java.security.SecureRandom;
@@ -28,5 +29,13 @@ public class UserService {
 		String encodedSalt = Base64.getEncoder().encodeToString(salt);
 		String hashedPassword = hashService.getHashedValue(user.getPassword(), encodedSalt);
 		return userMapper.insert(new User(null, user.getUsername(), encodedSalt, hashedPassword, user.getFirstName(), user.getLastName()));
+	}
+	
+	public User getUser(String userName) {
+		return userMapper.getUser(userName);
+	}
+	
+	public boolean userExists(String userName) {
+		return userMapper.getUser(userName) != null;
 	}
 }

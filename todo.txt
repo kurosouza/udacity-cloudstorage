@@ -1,0 +1,7 @@
+1. Create user from /signup URL
+    a. validation for firstname, lastname, username, password fields
+2. Login user from /login URL
+
+- edit note, credential 
+- delete note, credential, file
+- view / download file

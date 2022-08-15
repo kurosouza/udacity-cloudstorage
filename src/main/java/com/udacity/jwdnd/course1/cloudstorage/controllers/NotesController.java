@@ -1,7 +1,5 @@
 package com.udacity.jwdnd.course1.cloudstorage.controllers;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -11,44 +9,54 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.udacity.jwdnd.course1.cloudstorage.models.Credential;
-import com.udacity.jwdnd.course1.cloudstorage.models.CredentialFormModel;
-import com.udacity.jwdnd.course1.cloudstorage.models.FileModel;
 import com.udacity.jwdnd.course1.cloudstorage.models.Note;
 import com.udacity.jwdnd.course1.cloudstorage.models.NoteFormModel;
 import com.udacity.jwdnd.course1.cloudstorage.services.CloudStorageService;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
 
 @Controller
-@RequestMapping(path = "/home")
-public class HomeController {
-	
-	private Logger logger = LoggerFactory.getLogger(HomeController.class);
-	
-	@Autowired 
+@RequestMapping(path = "/notes")
+public class NotesController {
+
+	private Logger logger = LoggerFactory.getLogger(NotesController.class);
+
+	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private CloudStorageService cloudStorageService;
+
+	@PostMapping
+	public String create(@ModelAttribute("noteFormModel") NoteFormModel noteFormModel, Model model,
+			HttpServletRequest request) {
+		logger.info("Received notes: " + noteFormModel);
+
+		String userName = request.getUserPrincipal().getName();
+
+		Integer userId = userService.getUser(userName).getUserId();
+
+		Note note = noteFormModel.toModel();
+		
+		if (note.getNoteId() == null) {
+			note.setUserId(userId);
+			cloudStorageService.addNote(note);
+		} else {
+			cloudStorageService.updateNote(note);
+		}
+		
+		return "redirect:/home";
+	}
 	
 	@GetMapping
-	public String home(@ModelAttribute NoteFormModel noteFormModel, @ModelAttribute CredentialFormModel credentialFormModel, Model model, HttpServletRequest request) {
-		String userName = request.getUserPrincipal().getName();
-		Integer userId = userService.getUser(userName).getUserId();
+	@RequestMapping(path = "/delete/{id}")
+	public String delete(@PathVariable("id") String noteId) {
+		cloudStorageService.deleteNote(Integer.parseInt(noteId));
 		
-		List<Note> notes = cloudStorageService.getAllNotes(userId);
-		List<FileModel> files = cloudStorageService.getAllFiles(userId);
-		List<Credential> credentials = cloudStorageService.getUserCredentials(userId);
-		
-		logger.info("Notes = " + notes);
-		
-		model.addAttribute("files", files);
-		model.addAttribute("notes", notes);
-		model.addAttribute("credentials", credentials);
-		
-		return "home";
+		return "redirect:/home";
 	}
-		
+	
 }

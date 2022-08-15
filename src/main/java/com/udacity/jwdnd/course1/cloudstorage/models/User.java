@@ -9,7 +9,9 @@ public class User {
 	private String firstName;
 	private String lastName;
 	
-	
+	public User(String username, String salt, String password, String firstName, String lastName) {
+		this(null, username, salt, password, firstName, lastName);
+	}
 
 	public User(Integer userId, String username, String salt, String password, String firstName, String lastName) {
 		super();
