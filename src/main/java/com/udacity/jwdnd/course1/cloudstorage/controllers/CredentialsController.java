@@ -45,14 +45,20 @@ public class CredentialsController {
 		logger.info("Saving credential: " + credentialFormModel);
 		Credential model = credentialFormModel.toModel();
 		
+		model.setUserId(userService.getUser(userName).getUserId());
+		
 		byte[] keyBytes = new byte[16];
 		secureRandom.nextBytes(keyBytes);
 
 		String key = Base64.getEncoder().encodeToString(keyBytes);
 		model.setKey1(key);
+		
+		String originalPassword = model.getPassword();
+		String encryptedPassword = encryptionService.encryptValue(originalPassword, key);
+		
+		model.setPassword(encryptedPassword);
 
-		if (credentialFormModel.getCredentialId() == null) {
-			model.setUserId(userService.getUser(userName).getUserId());
+		if (credentialFormModel.getCredentialId() == null) {	
 			cloudStorageService.addCredential(model);
 		} else {
 			model.setCredentialId(credentialFormModel.getCredentialId());

@@ -9,6 +9,8 @@ public class Credential {
 	private String url;
 	private Integer userId;
 	
+	private String plainPw;
+	
 	public Credential() { }
 
 	public Credential(Integer id, String username, String password, String key1, String url, Integer userId) {
@@ -73,8 +75,14 @@ public class Credential {
 		this.userId = userId;
 	}
 	
-	
-	
+	public String getPlainPw() {
+		return plainPw;
+	}
+
+	public void setPlainPw(String plainPw) {
+		this.plainPw = plainPw;
+	}
+
 	@Override
 	public String toString() {
 		return "Credential [credentialId=" + credentialId + ", username=" + username + ", key1=" + key1 + ", password="

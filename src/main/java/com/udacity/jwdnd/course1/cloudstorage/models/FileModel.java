@@ -67,7 +67,11 @@ public class FileModel {
 	public void setUserId(int userId) {
 		this.userId = userId;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "FileModel [fileId=" + fileId + ", fileName=" + fileName + ", contentType=" + contentType + ", fileSize="
+				+ fileSize + ", userId=" + userId + ", data = " + fileData + "]";
+	}
 
 }
