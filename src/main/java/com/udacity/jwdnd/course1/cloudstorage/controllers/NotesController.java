@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.udacity.jwdnd.course1.cloudstorage.models.Note;
 import com.udacity.jwdnd.course1.cloudstorage.models.NoteFormModel;
@@ -32,7 +33,7 @@ public class NotesController {
 
 	@PostMapping
 	public String create(@ModelAttribute("noteFormModel") NoteFormModel noteFormModel, Model model,
-			HttpServletRequest request) {
+			HttpServletRequest request, RedirectAttributes redirectAttributes) {
 		logger.info("Received notes: " + noteFormModel);
 
 		String userName = request.getUserPrincipal().getName();
@@ -44,8 +45,10 @@ public class NotesController {
 		if (note.getNoteId() == null) {
 			note.setUserId(userId);
 			cloudStorageService.addNote(note);
+			redirectAttributes.addFlashAttribute("notesSuccessMsg","Note added successfully.");
 		} else {
 			cloudStorageService.updateNote(note);
+			redirectAttributes.addFlashAttribute("notesSuccessMsg","Note updated successfully.");
 		}
 		
 		return "redirect:/home";
@@ -53,9 +56,9 @@ public class NotesController {
 	
 	@GetMapping
 	@RequestMapping(path = "/delete/{id}")
-	public String delete(@PathVariable("id") String noteId) {
+	public String delete(@PathVariable("id") String noteId, RedirectAttributes redirectAttributes) {
 		cloudStorageService.deleteNote(Integer.parseInt(noteId));
-		
+		redirectAttributes.addFlashAttribute("notesSuccessMsg","Note deleted successfully.");
 		return "redirect:/home";
 	}
 	

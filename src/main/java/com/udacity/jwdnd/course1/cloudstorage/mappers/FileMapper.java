@@ -23,7 +23,12 @@ public interface FileMapper {
 	@Select("SELECT * FROM files WHERE userId = #{userId}")
 	List<FileModel> getUserFiles(Integer userId);
 	
+	@Select("SELECT COUNT(*) FROM files where userId = #{userId} AND filename = #{fileName}")
+	Integer getUserFileCount(Integer userId, String fileName);
+	
 	@Delete("DELETE FROM files WHERE fileId = #{id}")
 	int delete(int id);
+	
+	
 	
 }

@@ -48,6 +48,10 @@ public class CloudStorageService {
 		return fileMapper.getFile(id);
 	}
 	
+	public boolean userAlreadyHasFile(Integer userId, String fileName) {
+		return fileMapper.getUserFileCount(userId, fileName) > 0;
+	}
+	
 	// Notes
 	
 	public boolean addNote(Note note) {

@@ -9,10 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.udacity.jwdnd.course1.cloudstorage.models.Credential;
 import com.udacity.jwdnd.course1.cloudstorage.models.CredentialFormModel;
@@ -39,7 +40,7 @@ public class HomeController {
 	private EncryptionService encryptionService;
 	
 	@GetMapping
-	public String home(@ModelAttribute NoteFormModel noteFormModel, @ModelAttribute CredentialFormModel credentialFormModel, Model model, HttpServletRequest request) {
+	public ModelAndView home(@ModelAttribute NoteFormModel noteFormModel, @ModelAttribute CredentialFormModel credentialFormModel, ModelMap model, HttpServletRequest request) {
 		String userName = request.getUserPrincipal().getName();
 		Integer userId = userService.getUser(userName).getUserId();
 		
@@ -58,7 +59,11 @@ public class HomeController {
 		model.addAttribute("notes", notes);
 		model.addAttribute("credentials", credentials);
 		
-		return "home";
+		if(model.containsKey("uploadErrorMsg")) {
+			logger.info("UploadErrorMsg = " + model.get("uploadErrorMsg"));
+		}
+		
+		return new ModelAndView("home", model);
 	}
 		
 }

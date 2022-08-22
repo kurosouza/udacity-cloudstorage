@@ -14,13 +14,15 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.udacity.jwdnd.course1.cloudstorage.models.FileModel;
 import com.udacity.jwdnd.course1.cloudstorage.models.User;
@@ -40,7 +42,9 @@ public class FilesController {
 	private UserService userService;
 	
 	@PostMapping
-	public String uploadFile(@RequestParam("fileUpload") MultipartFile file, Model model, HttpServletRequest request) throws IOException {
+	public ModelAndView uploadFile(@RequestParam("fileUpload") MultipartFile file, 
+			ModelMap model, HttpServletRequest request,
+			RedirectAttributes redirectAttributes) throws IOException {
 		Principal principal = request.getUserPrincipal();
 		String userName = principal.getName();
 		
@@ -51,6 +55,14 @@ public class FilesController {
 		String fileName = file.getOriginalFilename();
 		String contentType = file.getContentType();
 		String fileSize = String.valueOf(file.getSize());
+		
+		if(cloudStorageService.userAlreadyHasFile(user.getUserId(), fileName)) {
+			logger.info("File " + fileName + " already exists.");
+			
+			redirectAttributes.addFlashAttribute("uploadErrorMsg", String.format("File %s already exists.", fileName));
+			
+			return new ModelAndView("redirect:/home", model);
+		}
 		
 		FileModel fileModel = new FileModel();
 		fileModel.setContentType(contentType);
@@ -63,15 +75,18 @@ public class FilesController {
 		
 		logger.info("Received uploaded file: " + fileModel);
 		
-		return "redirect:/home";
+		redirectAttributes.addFlashAttribute("filesSuccessMsg", String.format("Your file %s was uploaded successfully.", fileName));
+		
+		return new ModelAndView("redirect:/home");
 	}
 	
 	@GetMapping
 	@RequestMapping(path = "/delete/{id}")
-	public String delete(@PathVariable("id") String fileId) {
+	public String delete(@PathVariable("id") String fileId,
+			RedirectAttributes redirectAttributes) {
 		Integer fileIdInt = Integer.parseInt(fileId);
 		cloudStorageService.deleteFile(fileIdInt);
-		
+		redirectAttributes.addFlashAttribute("filesSuccessMsg", "File deleted successfully.");
 		return "redirect:/home";
 	}
 	

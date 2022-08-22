@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.udacity.jwdnd.course1.cloudstorage.models.UserFormModel;
 import com.udacity.jwdnd.course1.cloudstorage.services.UserService;
@@ -30,7 +31,8 @@ public class SignupController {
 	}
 	
 	@PostMapping
-	public String createUser(@ModelAttribute UserFormModel newUserForm, Model model) {
+	public String createUser(@ModelAttribute UserFormModel newUserForm, Model model,
+			RedirectAttributes redirectAttributes) {
 		logger.info("Recieved input user model: " + newUserForm);
 		
 		String signupError = null;
@@ -47,9 +49,13 @@ public class SignupController {
 			}
 		}
 		
+		model.addAttribute("newUserForm", new UserFormModel());
+		
 		if(signupError == null) {
+			redirectAttributes.addFlashAttribute("signupSuccess", true);
 			model.addAttribute("signupSuccess", true);
-			model.addAttribute("newUserForm", new UserFormModel());
+			return "redirect:/login";
+			
 		} else {
 			model.addAttribute("signupError", signupError);
 		}
